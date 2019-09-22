@@ -1,0 +1,127 @@
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Demo Azbot</title>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.2/animate.min.css">
+    </head>
+    <body style="background-color: #313131">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <div style="padding: 20px" class="text-center">
+                        <img src="https://azbot.io/dashboard//assets/img/logo-azbot-g.fw.png" style="width: 100px" />
+                        <h1 style="color : #fff">Demostração Api</h1>
+                    </div>
+                    
+                </div>
+                <div class="col-lg-5" style="margin-bottom: 10%">
+                    
+                    <div class="card text-white bg-dark mb-3 shadow">
+                      <div class="card-header text-center">
+                        Enviar mensagens
+                      </div>
+                      <div class="card-body">
+                        <form id="formulario" method="POST">
+                            <div class="form-group text-center">
+                            <label for="exampleFormControlTextarea1">Estatus : <span id="status"></span></label>
+                          </div>
+                          <div class="form-group">
+                            <label for="exampleInputEmail1">Numero</label>
+                            <input type="number" id="numero" class="form-control" placeholder="Insita o numero">
+                            <small id="emailHelp" class="form-text text-muted">Ex : 5521912345678</small>
+                          </div>
+                          <div class="form-group">
+                            <label for="exampleFormControlTextarea1">Conteudo Mensagem</label>
+                            <textarea  id="msg" class="form-control" rows="3"></textarea>
+                          </div>
+                          <button type="submit" class="btn btn-success btn-block">Enviar</button>
+                           <div class="form-group text-center" id="success" style="margin:  5; display: none">
+                            <label>Enviado com sucesso :3 </label>
+                           </div>
+                        </form>
+                      </div>
+                    </div>
+                </div>
+                <div class="col-lg-7">
+                    <div class="card text-white bg-dark mb-3 shadow">
+                      <div class="card-header text-center">
+                        Log
+                      </div>
+                      <div class="card-body">
+                        <div style="height: 70vh; overflow: auto;">
+                            <pre style="color: #fff" id="log"></pre>  
+                        </div>
+                      </div>
+                    </div>
+                </div>
+            <div>
+        </div>
+        <div>
+            
+        </div>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"></script>
+        <script>
+            var socket = io('https://azbot.io:3020', {
+                query : {
+                    token : " < TOKEN >"
+                }
+            });
+            
+            $('body').on('submit', '#formulario' ,function(e){
+                e.preventDefault()
+                let numero = $('#numero').val()
+                //alert(numero)
+
+                let data = {
+                    number : numero,
+                    type : 'text',
+                    msg : $('#msg').val()
+                }
+                function output(inp) {
+                    $('#log').prepend('<hr><div class="animated fadeInDown">' + inp + '</div>')
+                }
+
+                var str = JSON.stringify(data, undefined, 2);
+
+                output(str);
+
+                socket.emit('ApiSendMsg', data , function(data){
+                    
+                    $('#msg').val("");
+                    $('#success').show();
+                    console.log(data)
+                });
+            });
+            
+            socket.on('connect', function(){
+                $('#status').html('Conectado')
+            })
+
+            socket.on('log', function(data){
+                console.log(data)
+            });
+            
+            socket.on('ApiReceiveMsg', function(data){
+                function output(inp) {
+                    $('#log').prepend('<hr><div class="animated fadeInDown">' + inp + '</div>')
+                }
+
+                var str = JSON.stringify(data, undefined, 2);
+
+                output(str);
+
+            	console.log(data)
+            });
+
+            socket.on('disconnect', function(){
+            	$('#status').html('Disconnectado')
+            });
+
+            
+        </script>
+    </body>
+    
+</html>
